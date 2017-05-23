@@ -59,7 +59,7 @@ public class ImdbFetcher {
 		SAXParser saxParser = getSAXParser();
 	    List<Episode> episodes = new ArrayList<Episode>();
 	    
-	    DateFormat df = new SimpleDateFormat("YYYY-MM-dd", Locale.ENGLISH);
+	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 	    
 	    saxParser.parse(is, new DefaultHandler() {
 	    	@Override
@@ -79,7 +79,6 @@ public class ImdbFetcher {
 	    			imdbRating = Double.parseDouble(attributes.getValue("imdbRating"));
 	    		}
 	    		catch(Exception e) {
-	    			e.printStackTrace();
 	    			System.out.println("Ungültiges Format für Rating " + attributes.getValue("imdbRating"));
 	    		}
 	    		
@@ -87,7 +86,8 @@ public class ImdbFetcher {
 	    		Date released = null;
 				
 	    		try {
-					released = df.parse(attributes.getValue("Released"));
+	    			String releaseDate = attributes.getValue("Released");
+					released = df.parse(releaseDate);
 				} 
 	    		catch (ParseException e) {
 					e.printStackTrace();

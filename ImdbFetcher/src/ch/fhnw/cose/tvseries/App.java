@@ -32,7 +32,7 @@ public class App {
 			try
 			{
 				System.out.println("Erstelle Episoden für Serie " + serie.imdbId + "...");
-				int seasonNr = 1;
+				int seasonNr = 0;
 				
 				while(seasonNr++ <= 100) {
 					try {
