@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -18,9 +23,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class ImdbFetcher {
 	private static final String apiKey = "1d9af0f5";
-	private static final String seriesByNameUrl = "http://www.omdbapi.com/?t=%1s&r=xml&apikey=%2s";
-	private static final String seriesByIdUrl = "http://www.omdbapi.com/?i=%1s&r=xml&apikey=%2s";
-	
+	private static final String seriesByNameUrl = "http://www.omdbapi.com/?t=%s&r=xml&apikey=%s";
+	private static final String seriesByIdUrl = "http://www.omdbapi.com/?i=%s&r=xml&apikey=%s";
+	private static final String episodesByIdUrl = "http://www.omdbapi.com/?i=%s&r=xml&apikey=%s&Season=%s";
+		
 	private static SAXParser getSAXParser() throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 	    spf.setNamespaceAware(true);
@@ -44,6 +50,54 @@ public class ImdbFetcher {
 	    saxParser.parse(is, new MyContentHandler(imdbIds));
 	    
 		return imdbIds.get(0);
+	}
+	
+	public static List<Episode> getEpisodesForSeason(String imdbID, int seasonNr) 
+			throws ParserConfigurationException, SAXException, IOException, Exception  {
+		String url = String.format(episodesByIdUrl, imdbID, apiKey, seasonNr);
+		InputStream is = new URL(url).openStream();
+		SAXParser saxParser = getSAXParser();
+	    List<Episode> episodes = new ArrayList<Episode>();
+	    
+	    DateFormat df = new SimpleDateFormat("YYYY-MM-dd", Locale.ENGLISH);
+	    
+	    saxParser.parse(is, new DefaultHandler() {
+	    	@Override
+			public void startElement(String uri, String localName, String qName, Attributes attributes) {
+	    		if(localName == "error") { 
+					throw new IllegalArgumentException("Keine Staffel " + seasonNr);
+	    		}
+	    		
+	    		if(localName != "result") { 
+	    			return; 
+	    		}
+	    		
+	    		String title = attributes.getValue("Title");
+	    		String imdbID = attributes.getValue("imdbID");
+	    		Double imdbRating = 0.0;
+	    		try {
+	    			imdbRating = Double.parseDouble(attributes.getValue("imdbRating"));
+	    		}
+	    		catch(Exception e) {
+	    			e.printStackTrace();
+	    			System.out.println("Ungültiges Format für Rating " + attributes.getValue("imdbRating"));
+	    		}
+	    		
+	    		int episode = Integer.parseInt(attributes.getValue("Episode"));
+	    		Date released = null;
+				
+	    		try {
+					released = df.parse(attributes.getValue("Released"));
+				} 
+	    		catch (ParseException e) {
+					e.printStackTrace();
+				}
+	    		
+	    		episodes.add(new Episode(title, imdbID, imdbRating, 0, seasonNr, episode, released));
+			}
+		});
+
+		return episodes;
 	}
 
 	public static List<String> getActorsForSeries(String imdbID) throws ParserConfigurationException, SAXException, IOException  {

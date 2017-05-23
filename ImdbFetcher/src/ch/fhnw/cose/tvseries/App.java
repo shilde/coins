@@ -7,15 +7,56 @@ import javax.naming.NamingException;
 
 public class App {
 	public static void main(String[] args) {
-		boolean execute = false; // Wegen Request Limit der API
+		boolean execute = true; // Wegen Request Limit der API
 		
 		if(execute) {
 			try {
+				List<Serie> series = DatabaseHandler.getSeries();
+				updateEpisodesForSeries(series);
+			} 
+			catch (NamingException | SQLException e) {
+				e.printStackTrace();
+			}
+			/*try {
 				List<Serie> series = DatabaseHandler.getSeries();
 				updateActorsForSeries(series);
 			} 
 			catch (NamingException | SQLException e) {
 				e.printStackTrace();
+			}*/
+		}
+	}
+	
+	private static void updateEpisodesForSeries(List<Serie> series) {	
+		for(Serie serie : series) {
+			try
+			{
+				int seasonNr = 1;
+				
+				while(seasonNr++ <= 100) {
+					try {
+						List<Episode> episodes = ImdbFetcher.getEpisodesForSeason(serie.imdbId, seasonNr);
+						
+						for(Episode episode : episodes) {
+							episode.seriesId = serie.id;
+							DatabaseHandler.insertEpisode(episode);
+						}
+					}
+					catch(IllegalArgumentException e)
+					{
+						// Vermutlich keine Episode für diese Nr.
+						System.out.println("Keine Staffel " + seasonNr + " für Serie " + serie.name);
+						break;
+					}
+					catch(Exception e) {
+						e.printStackTrace();
+					}
+					
+				}
+			}
+			catch(Exception ex)
+			{
+				System.out.println(ex.getMessage());
 			}
 		}
 	}

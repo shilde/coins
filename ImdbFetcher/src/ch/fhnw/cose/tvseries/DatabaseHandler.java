@@ -1,6 +1,7 @@
 package ch.fhnw.cose.tvseries;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -66,18 +67,40 @@ public class DatabaseHandler {
 	
 	public static int insertActor(String name) throws NamingException, SQLException {
 		//Statement stmt = conn.createStatement();
-		PreparedStatement stmt = null;
-		try {
-		stmt = conn.prepareStatement("INSERT INTO Actor (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Actor (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.executeUpdate();
-		}
-		catch(Exception e) {
-			System.out.println("Fehler bei " + name);
 
-		}
-		//String query = "INSERT INTO Actor (name) VALUES ('"+name.replace("'","''")+"')";
-		//int test = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+		int id = 0;
+		try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                id = (int)generatedKeys.getLong(1);
+            }
+            else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+        }
+		
+		stmt.close();
+		
+		return id;
+	}
+	
+	public static int insertEpisode(Episode episode) throws NamingException, SQLException {
+		//Statement stmt = conn.createStatement();
+
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Episode (Title, ImdbId, SeriesId, Season, Episode, Rating, Released) " +
+		"VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, episode.title);
+		stmt.setString(2, episode.imdbID);
+		stmt.setInt(3, episode.seriesId);
+		stmt.setInt(4, episode.season);
+		stmt.setInt(5, episode.episode);
+		stmt.setDouble(6, episode.imdbRating);
+		stmt.setTimestamp(7, new java.sql.Timestamp(episode.released.getTime()));
+		
+		stmt.executeUpdate();
+
 		int id = 0;
 		try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
             if (generatedKeys.next()) {
