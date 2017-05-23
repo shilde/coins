@@ -31,15 +31,9 @@ public class DatabaseHandler {
 		ResultSet rs = stmt.executeQuery("SELECT Id, Name, Canceled FROM Series");
 
 		java.util.ArrayList<Serie> series = new java.util.ArrayList<>();
-		while(rs.next())
-		{
-			int id = rs.getInt("Id");
-			String name = rs.getString("Name");
-			boolean canceled = rs.getBoolean("Canceled");
-			String imdbId = rs.getString("ImdbId");
-			
-			Serie serie = new Serie(id, name, canceled, imdbId);
-			series.add(serie);
+		
+		while(rs.next()) {
+			series.add(new Serie(rs));
 		}
 		
 		rs.close();
@@ -48,21 +42,31 @@ public class DatabaseHandler {
 		return series;
 	}
 	
-	public static java.util.List<Serie> getSeriesWithoutImdbId() throws NamingException, SQLException {
+	public static Actor getActorByName(String name) throws NamingException, SQLException {
 
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT idActor, Name, Canceled FROM Series");
+
+		java.util.ArrayList<Serie> series = new java.util.ArrayList<>();
+		
+		while(rs.next()) {
+			series.add(new Serie(rs));
+		}
+		
+		rs.close();
+		stmt.close();
+		
+		return null;
+	}
+	
+	public static java.util.List<Serie> getSeriesWithoutImdbId() throws NamingException, SQLException {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT Id, Name, Canceled, ImdbId FROM Series WHERE ImdbId IS NULL");
 
 		java.util.ArrayList<Serie> series = new java.util.ArrayList<>();
-		while(rs.next())
-		{
-			int id = rs.getInt("Id");
-			String name = rs.getString("Name");
-			boolean canceled = rs.getBoolean("Canceled");
-			String imdbId = rs.getString("ImdbId");
-			
-			Serie serie = new Serie(id, name, canceled, imdbId);
-			series.add(serie);
+		
+		while(rs.next()) {
+			series.add(new Serie(rs));
 		}
 		
 		rs.close();
