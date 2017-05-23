@@ -31,6 +31,7 @@ public class App {
 		for(Serie serie : series) {
 			try
 			{
+				System.out.println("Erstelle Episoden für Serie " + serie.imdbId + "...");
 				int seasonNr = 1;
 				
 				while(seasonNr++ <= 100) {
