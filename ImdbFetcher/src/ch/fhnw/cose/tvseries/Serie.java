@@ -5,6 +5,10 @@ import java.sql.SQLException;
 
 public class Serie {
 	public Serie(ResultSet rs) throws SQLException {
+		/*this.id = rs.getInt("Id");
+		this.name = rs.getString("Name");
+		this.canceled = rs.getBoolean("Canceled");
+		this.imdbId = rs.getString("ImdbId");*/
 		this(rs.getInt("Id"), rs.getString("Name"), rs.getBoolean("Canceled"), rs.getString("ImdbId"));	
 	}
 	

@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class ImdbFetcherTest {
-/*
+
 	@Test
 	public void getImdbIdByName() throws NamingException, SQLException, ParserConfigurationException, SAXException, IOException {
 		String imdbId = ImdbFetcher.getImdbIdByName("The Simpsons");
@@ -34,30 +34,12 @@ public class ImdbFetcherTest {
 			}
 		}
 	}
-	*/
-	@Test
-	public void updateActorsForSeries() throws NamingException, SQLException, ParserConfigurationException, SAXException, IOException {
-		
-		java.util.List<Serie> series = DatabaseHandler.getSeriesWithoutImdbId();
-		
-		for(Serie serie : series) {
-			try
-			{
-				String imdbId = ImdbFetcher.getImdbIdByName(serie.name);
-				DatabaseHandler.updateSerieImdbId(serie.id, imdbId);
-			}
-			catch(Exception ex)
-			{
-				
-			}
-		}
-	}
-	
+
 	@Test
 	public void getActorsForSeries() throws NamingException, SQLException, ParserConfigurationException, SAXException, IOException {
 		List<String> actors = ImdbFetcher.getActorsForSeries("tt0096697");	
 	}
-		/*
+		
 	@Test
 	public void updateActorsForSeries() throws NamingException, SQLException, ParserConfigurationException, SAXException, IOException {
 		
@@ -89,5 +71,5 @@ public class ImdbFetcherTest {
 				
 			}
 		}
-	}*/
+	}
 }
