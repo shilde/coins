@@ -12,6 +12,19 @@ public class DatabaseHandlerTest {
 	@Test
 	public void getSeries() throws NamingException, SQLException {
 		java.util.List<Serie> series = DatabaseHandler.getSeries();
+		int numberOfSeries = series.size();
+	}
+	
+	@Test
+	public void getEpisodes() throws NamingException, SQLException {
+		java.util.List<Episode> episodes = DatabaseHandler.getEpisodes();
+		int numberOfEpisodes = episodes.size();
+	}
+	
+	@Test
+	public void getActors() throws NamingException, SQLException {
+		java.util.List<Actor> actors = DatabaseHandler.getActors();
+		int numberOfActors = actors.size();
 	}
 	
 	@Test

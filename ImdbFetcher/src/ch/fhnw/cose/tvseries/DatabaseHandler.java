@@ -44,6 +44,23 @@ public class DatabaseHandler {
 		return series;
 	}
 	
+	public static java.util.List<Actor> getActors() throws NamingException, SQLException {
+
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM Actor");
+
+		java.util.ArrayList<Actor> actors = new java.util.ArrayList<>();
+		
+		while(rs.next()) {
+			actors.add(new Actor(rs));
+		}
+		
+		rs.close();
+		stmt.close();
+		
+		return actors;
+	}
+	
 	public static Actor getActorByName(String name) throws NamingException, SQLException {
 		PreparedStatement stmt = conn.prepareStatement("SELECT idActor, Name FROM Actor WHERE Name=?");
 		stmt.setString(1, name);
@@ -63,6 +80,24 @@ public class DatabaseHandler {
 		stmt.close();
 		
 		return actor;
+	}
+	
+	public static java.util.List<Episode> getEpisodes() throws NamingException, SQLException {
+
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM Episode");
+
+		java.util.ArrayList<Episode> episodes = new java.util.ArrayList<>();
+		
+		while(rs.next()) {
+			// TODO: Fill object correctly
+			episodes.add(new Episode("", "", 0, 0,0,0, new Date(0)));
+		}
+		
+		rs.close();
+		stmt.close();
+		
+		return episodes;
 	}
 	
 	public static int insertActor(String name) throws NamingException, SQLException {
