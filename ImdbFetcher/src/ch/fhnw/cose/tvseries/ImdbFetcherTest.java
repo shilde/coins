@@ -27,6 +27,7 @@ public class ImdbFetcherTest {
 			{
 				String imdbId = ImdbFetcher.getImdbIdByName(serie.name);
 				DatabaseHandler.updateSerieImdbId(serie.id, imdbId);
+				
 			}
 			catch(Exception ex)
 			{
