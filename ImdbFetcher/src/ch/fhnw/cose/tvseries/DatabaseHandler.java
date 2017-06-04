@@ -28,9 +28,28 @@ public class DatabaseHandler {
     }
 	
 	public static java.util.List<Serie> getSeries() throws NamingException, SQLException {
+		return getSeries(false, true);
+	}
+	
+	public static java.util.List<Serie> getSeries(Boolean canceled) throws NamingException, SQLException {
+		return getSeries(true, false);
+	}
+	
+	private static java.util.List<Serie> getSeries(Boolean canceled, Boolean all) throws NamingException, SQLException {
 
+		String sql = "SELECT Id, Name, Canceled, ImdbId FROM Series ";
+		
+		if(!all) {
+			if(canceled) {
+				sql += "WHERE Canceled = 1";
+			}
+			else {
+				sql += "WHERE Canceled = 0";
+			}
+		}
+		
 		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery("SELECT Id, Name, Canceled, ImdbId FROM Series");
+		ResultSet rs = stmt.executeQuery(sql);
 
 		java.util.ArrayList<Serie> series = new java.util.ArrayList<>();
 		
@@ -132,7 +151,16 @@ public class DatabaseHandler {
 		stmt.setInt(4, episode.season);
 		stmt.setInt(5, episode.episode);
 		stmt.setDouble(6, episode.imdbRating);
-		stmt.setTimestamp(7, new java.sql.Timestamp(episode.released.getTime()));
+		
+		long time = 0;
+		
+		try {
+			time = episode.released.getTime();
+			stmt.setTimestamp(7, new java.sql.Timestamp(time));
+		}
+		catch(Exception e) {
+			stmt.setNull(7, java.sql.Types.TIMESTAMP);
+		}
 		
 		stmt.executeUpdate();
 
@@ -176,6 +204,14 @@ public class DatabaseHandler {
 	public static void updateSerieImdbId(int id, String imdbId) throws SQLException {
 		Statement stmt = conn.createStatement();
 		stmt.executeUpdate(String.format("UPDATE Series SET ImdbId = '%s' WHERE Id = %s", imdbId, id));
+		stmt.close();
+	}
+	
+	public static void updateSerieRating(Double rating, String imdbId) throws SQLException {
+		PreparedStatement stmt = conn.prepareStatement("UPDATE Series SET Rating = ? WHERE ImdbId = ?");
+		stmt.setDouble(1, rating);
+		stmt.setString(2, imdbId);
+		stmt.executeUpdate();
 		stmt.close();
 	}
 	

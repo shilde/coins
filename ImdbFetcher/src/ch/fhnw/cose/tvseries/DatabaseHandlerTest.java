@@ -11,7 +11,7 @@ public class DatabaseHandlerTest {
 
 	@Test
 	public void getSeries() throws NamingException, SQLException {
-		java.util.List<Serie> series = DatabaseHandler.getSeries();
+		java.util.List<Serie> series = DatabaseHandler.getSeries(true);
 		int numberOfSeries = series.size();
 	}
 	

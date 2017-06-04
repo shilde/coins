@@ -52,8 +52,43 @@ public class ImdbFetcher {
 		return imdbIds.get(0);
 	}
 	
+	public static double getSeriesRatingByImdbId(String imdbId) throws ParserConfigurationException, SAXException, IOException  {
+		String url = String.format(seriesByIdUrl, imdbId, apiKey);
+		InputStream is = new URL(url).openStream();
+		SAXParser saxParser = getSAXParser();
+
+		//Double imdbRating = 0.0;
+		Double[] imdbRatings = new Double[1];
+		imdbRatings[0] = new Double(0);
+		
+	    saxParser.parse(is, new DefaultHandler() {
+	    	@Override
+			public void startElement(String uri, String localName, String qName, Attributes attributes) {
+	    		if(localName != "movie") { 
+	    			return; 
+	    		}
+	    		
+	    		try {
+	    			imdbRatings[0] = Double.parseDouble(attributes.getValue("imdbRating"));
+	    			//imdbRating = Double.parseDouble(attributes.getValue("Rating"));
+	    		}
+	    		catch(Exception e) {
+	    			System.out.println("Ungültiges Format für Rating " + attributes.getValue("imdbRating"));
+	    		}
+	    		
+			}
+		});
+	    
+	    return imdbRatings[0];
+	}
+	
 	public static List<Episode> getEpisodesForSeason(String imdbID, int seasonNr) 
 			throws ParserConfigurationException, SAXException, IOException, Exception  {
+		
+		if(imdbID == null || imdbID == "") {
+			return new ArrayList<Episode>();
+		}
+		
 		String url = String.format(episodesByIdUrl, imdbID, apiKey, seasonNr);
 		InputStream is = new URL(url).openStream();
 		SAXParser saxParser = getSAXParser();
@@ -89,8 +124,8 @@ public class ImdbFetcher {
 	    			String releaseDate = attributes.getValue("Released");
 					released = df.parse(releaseDate);
 				} 
-	    		catch (ParseException e) {
-					e.printStackTrace();
+	    		catch (Exception e) {
+					System.out.println("Released " + attributes.getValue("Released") + " konnte nicht geparsed werden.");
 				}
 	    		
 	    		episodes.add(new Episode(title, imdbID, imdbRating, 0, seasonNr, episode, released));
