@@ -8,12 +8,6 @@ import javax.naming.NamingException;
 import org.junit.Test;
 
 public class DatabaseHandlerTest {
-
-	@Test
-	public void getSeries() throws NamingException, SQLException {
-		java.util.List<Serie> series = DatabaseHandler.getSeries(true);
-		int numberOfSeries = series.size();
-	}
 	
 	@Test
 	public void getEpisodes() throws NamingException, SQLException {
@@ -30,5 +24,11 @@ public class DatabaseHandlerTest {
 	@Test
 	public void insertEpisode() throws NamingException, SQLException {
 		DatabaseHandler.insertEpisode(1, 1, 1, 8.5);
+	}
+	
+	@Test
+	public void getSeries() throws NamingException, SQLException {
+		java.util.List<Serie> series = DatabaseHandler.getSeries();
+		int numberOfSeries = series.size();
 	}
 }

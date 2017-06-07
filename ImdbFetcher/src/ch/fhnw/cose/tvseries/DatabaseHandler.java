@@ -28,25 +28,8 @@ public class DatabaseHandler {
     }
 	
 	public static java.util.List<Serie> getSeries() throws NamingException, SQLException {
-		return getSeries(false, true);
-	}
-	
-	public static java.util.List<Serie> getSeries(Boolean canceled) throws NamingException, SQLException {
-		return getSeries(true, false);
-	}
-	
-	private static java.util.List<Serie> getSeries(Boolean canceled, Boolean all) throws NamingException, SQLException {
 
-		String sql = "SELECT Id, Name, Canceled, ImdbId FROM Series ";
-		
-		if(!all) {
-			if(canceled) {
-				sql += "WHERE Canceled = 1";
-			}
-			else {
-				sql += "WHERE Canceled = 0";
-			}
-		}
+		String sql = "SELECT Id, Name, State, ImdbId FROM Series";
 		
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
@@ -117,6 +100,28 @@ public class DatabaseHandler {
 		stmt.close();
 		
 		return episodes;
+	}
+	
+	public static int insertSeries(String name, int state) throws NamingException, SQLException {
+		//Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Series (Name, State) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, name);
+		stmt.setInt(2, state);
+		stmt.executeUpdate();
+
+		int id = 0;
+		try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                id = (int)generatedKeys.getLong(1);
+            }
+            else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+        }
+		
+		stmt.close();
+		
+		return id;
 	}
 	
 	public static int insertActor(String name) throws NamingException, SQLException {

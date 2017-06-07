@@ -9,18 +9,18 @@ public class Serie {
 		this.name = rs.getString("Name");
 		this.canceled = rs.getBoolean("Canceled");
 		this.imdbId = rs.getString("ImdbId");*/
-		this(rs.getInt("Id"), rs.getString("Name"), rs.getBoolean("Canceled"), rs.getString("ImdbId"));	
+		this(rs.getInt("Id"), rs.getString("Name"), rs.getInt("State"), rs.getString("ImdbId"));	
 	}
 	
-	public Serie(int id, String name, boolean canceled, String imdbId) {
+	public Serie(int id, String name, int state, String imdbId) {
 		this.id = id;
 		this.name = name;
-		this.canceled = canceled;
+		this.state = state;
 		this.imdbId = imdbId;
 	}
 	
 	public int id;
 	public String name;
-	public boolean canceled;
+	public int state;
 	public String imdbId;
 }
