@@ -116,10 +116,11 @@ public class Twitter4JHelper implements RateLimitStatusListener {
 		}
 		
 		long cursor = -1;
-		Paging page = new Paging(1, 200);
+		Paging page = new Paging(1, 5000);
 		do {
 			checkRateLimitAndThrow();
 			ResponseList<Status> tweets = twitter.getUserTimeline(userId, page);
+			System.out.println("Respsonse List: " + tweets.size());
 			if (tweets == null || tweets.size() == 0) break;
 			for (int i = 0; i < tweets.size(); i++) {
 				Status status = tweets.get(i);

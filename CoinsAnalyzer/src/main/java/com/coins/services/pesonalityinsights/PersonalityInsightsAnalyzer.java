@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import com.coins.fetcher.twitter.Twitter4JHelper;
-import com.coins.services.toneanalyzer.ToneAnalyzerHelper;
 
 import twitter4j.Status;
 
@@ -20,12 +19,12 @@ public class PersonalityInsightsAnalyzer {
 		
 		Twitter4JHelper twitterHelper = new Twitter4JHelper(props);
 		//PersonalityInsightsHelper piHelper = new PersonalityInsightsHelper(props);
-		ToneAnalyzerHelper taHelper = new ToneAnalyzerHelper(props);
+		//ToneAnalyzerHelper taHelper = new ToneAnalyzerHelper(props);
 		
 		HashSet<String> langs = new HashSet<String>();
 		langs.add("en");
 		
-		List<Status> tweets = twitterHelper.getTweetsFromQuery("#Dexter", langs, 200);
+		List<Status> tweets = twitterHelper.getTweetsFromQuery("@GameOfThrones", langs, 200);
 		
 		for (int i = 0; i < tweets.size(); i++) {
 			System.out.println(tweets.get(i).getText());
@@ -34,8 +33,8 @@ public class PersonalityInsightsAnalyzer {
 		String contentItemsJson = twitterHelper.convertTweetsToPIContentItems(tweets);
 		//String profile = piHelper.getProfileJSON(contentItemsJson, false);
 		//String profile = piHelper.getProfileCSV(contentItemsJson, false);
-		String tone = taHelper.getToneJSON(contentItemsJson, false);
-		System.out.println(tone);
+		//String tone = taHelper.getToneJSON(contentItemsJson, false);
+		//System.out.println(tone);
 	}
 
 }

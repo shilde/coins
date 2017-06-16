@@ -90,11 +90,7 @@ public class TvSeriesService {
 			
 			DatabaseHelper db = new DatabaseHelper();
 			db.getConnection();
-			try {
-				_series = db.getAllSeries();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			_series = db.getAllSeries();
 			
 			Random r = new Random(0);
 			for (TvSerie serie : _series) {

@@ -1,23 +1,18 @@
 package com.coins.view;
 
-import com.coins.component.PersonalityInsights;
-import com.coins.component.ToneChart;
+import com.coins.component.PersonalityChart;
+import com.coins.component.SocialTendenciesChart;
+import com.coins.component.ConsumerNeeds;
+import com.coins.component.EmotionChart;
 import com.coins.model.TvSerie;
 import com.coins.services.TvSeriesService;
-import com.vaadin.addon.charts.Chart;
-import com.vaadin.addon.charts.model.ChartType;
-import com.vaadin.addon.charts.model.Configuration;
-import com.vaadin.addon.charts.model.DataSeries;
-import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.ListSeries;
-import com.vaadin.addon.charts.model.Tooltip;
-import com.vaadin.addon.charts.model.XAxis;
-import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Responsive;
+import com.vaadin.server.VaadinService;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -26,15 +21,15 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
-
-import fi.vtt.RVaadin.RContainer;
 
 @SuppressWarnings("serial")
 public class Dashboard extends Panel implements View {
@@ -48,8 +43,10 @@ public class Dashboard extends Panel implements View {
 	private CssLayout dashboardPanels;
 	private ComboBox<TvSerie> selectSeries;
 	private Label titleLabel;
-	private ToneChart toneChart;
-	private PersonalityInsights personalityInsights;
+	private ConsumerNeeds consumerNeeds;
+	private PersonalityChart personalityChart;
+	private EmotionChart emotionChart;
+	private SocialTendenciesChart socialTendenciesChart;
 
 	public Dashboard() {
 
@@ -61,7 +58,7 @@ public class Dashboard extends Panel implements View {
 		root.setSpacing(false);
 		root.addStyleName("dashboard-view");
 		setContent(root);
-		
+
 		root.addComponent(buildHeader());
 
 		Component content = buildCharts();
@@ -70,43 +67,27 @@ public class Dashboard extends Panel implements View {
 		root.setExpandRatio(content, 1);
 
 		setData();
+
 	}
-	
 
 	private Component buildHeader() {
-		
-		HorizontalLayout header = new HorizontalLayout();
-		header.setPrimaryStyleName("valo-menu");
-		header.setSizeUndefined();
-		header.addStyleName("sidebar");
-		header.addStyleName(ValoTheme.MENU_PART);
-		header.addStyleName("no-vertical-drag-hints");
-        header.addStyleName("no-horizontal-drag-hints");
-		header.setWidth("100%");
-		header.setHeight(null);
-		
+
+		HorizontalLayout toolbar = new HorizontalLayout();
+
+		toolbar.addStyleName("viewheader");
+
 		titleLabel = new Label("Coolhunting Tv Series - <strong>Team 11</strong>", ContentMode.HTML);
 		titleLabel.setId(TITLE_ID);
 		titleLabel.setSizeUndefined();
-		//titleLabel.addStyleName(ValoTheme.LABEL_H1);
-		//titleLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-		
-		HorizontalLayout logoWrapper = new HorizontalLayout(titleLabel);
-        logoWrapper.setComponentAlignment(titleLabel, Alignment.MIDDLE_CENTER);
-        logoWrapper.addStyleName("valo-menu-title");
-        logoWrapper.setSpacing(false);
+		titleLabel.addStyleName(ValoTheme.LABEL_H1);
+		titleLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
-		header.addComponents(titleLabel, buildToolbar());
-		
-		return header;
-	}
+		toolbar.addComponent(titleLabel);
 
-	private Component buildToolbar() {
-		
-		HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.addStyleName("toolbar");
-        
 		selectSeries = new ComboBox<>();
+		selectSeries.setSizeUndefined();
+		selectSeries.addStyleName(ValoTheme.LABEL_H2);
+		selectSeries.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		selectSeries.setItemCaptionGenerator(TvSerie::getName);
 		selectSeries.addShortcutListener(new ShortcutListener("View", KeyCode.ENTER, null) {
 			@Override
@@ -129,35 +110,36 @@ public class Dashboard extends Panel implements View {
 		view.addClickListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
-				drawCharts(selectSeries.getValue());
+				updateCharts(selectSeries.getValue());
 			}
 		});
 
 		return toolbar;
 	}
 
-	protected void drawCharts(TvSerie value) {
+	protected void updateCharts(TvSerie value) {
+
+		consumerNeeds.buildData(value.getName());
+		consumerNeeds.drawChart();
+
+		personalityChart.buildData(value.getName());
+		personalityChart.drawChart();
 		
-		DataSeries series = new DataSeries();
-		series.add(new DataSeriesItem("35%", 35));
-		series.add(new DataSeriesItem("40%", 40));
-		DataSeriesItem s25 = new DataSeriesItem("25%", 25);
-		s25.setSliced(true);
-		series.add(s25);
-		toneChart.getConfiguration().addSeries(series);
-		toneChart.drawChart();
+		emotionChart.buildData(value.getName());
+		emotionChart.drawChart();
 		
-		personalityInsights.buildData();
+		socialTendenciesChart.buildData(value.getName());
+		socialTendenciesChart.drawChart();
 		
-		personalityInsights.getConfiguration().addSeries(series);
-		personalityInsights.drawChart();
 	}
 
 	private void buildData(TvSerie value) {
 
 	}
-	
+
 	private void setData() {
+		//TvSerie serie = new TvSerie("Game of Thrones", "123");
+		//selectSeries.setItems(serie);
 		selectSeries.setItems(service.getSeries().values());
 	}
 
@@ -167,20 +149,37 @@ public class Dashboard extends Panel implements View {
 		dashboardPanels.addStyleName("dashboard-panels");
 		Responsive.makeResponsive(dashboardPanels);
 
-		dashboardPanels.addComponent(buildToneAnalyzer());
-		dashboardPanels.addComponent(buildPersonalityInsights());
+		dashboardPanels.addComponent(buildPersonalityChart());
+		dashboardPanels.addComponent(buildConsumerNeeds());
 		
+		dashboardPanels.addComponent(buildEmotionChart());
+		dashboardPanels.addComponent(socialTendenciesChart());
+
 		return dashboardPanels;
 	}
 
-	private Component buildPersonalityInsights() {
-		personalityInsights = new PersonalityInsights();
-		return createContentWrapper(personalityInsights);
+	private Component socialTendenciesChart() {
+		socialTendenciesChart = new SocialTendenciesChart();
+		socialTendenciesChart.setSizeFull();
+		return createContentWrapper(socialTendenciesChart);
 	}
 
-	private Component buildToneAnalyzer() {
-		toneChart = new ToneChart();
-		return createContentWrapper(toneChart);
+	private Component buildEmotionChart() {
+		emotionChart = new EmotionChart();
+		emotionChart.setSizeFull();
+		return createContentWrapper(emotionChart);
+	}
+
+	private Component buildPersonalityChart() {
+		personalityChart = new PersonalityChart();
+		personalityChart.setSizeFull();
+		return createContentWrapper(personalityChart);
+	}
+
+	private Component buildConsumerNeeds() {
+		consumerNeeds = new ConsumerNeeds();
+		consumerNeeds.setSizeFull();
+		return createContentWrapper(consumerNeeds);
 	}
 
 	private Component createContentWrapper(final Component content) {
@@ -203,7 +202,17 @@ public class Dashboard extends Panel implements View {
 		caption.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 		content.setCaption(null);
 
-		toolbar.addComponent(caption);
+		MenuBar about = new MenuBar();
+		about.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
+		MenuItem help = about.addItem("", FontAwesome.COG, null);
+		help.addItem("About", new Command() {
+			@Override
+			public void menuSelected(final MenuItem selectedItem) {
+			}
+		});
+
+		toolbar.addComponents(caption, about);
 		toolbar.setExpandRatio(caption, 1);
 		toolbar.setComponentAlignment(caption, Alignment.MIDDLE_LEFT);
 
@@ -212,6 +221,7 @@ public class Dashboard extends Panel implements View {
 
 		return slot;
 	}
+
 
 	@Override
 	public void enter(ViewChangeEvent event) {
